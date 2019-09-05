@@ -42,12 +42,21 @@ defmodule AirportLookupApi.AirportData do
   end
 
   def seed_redis do
-    if redis_empty?() do
+    if redis_empty?() and !is_seeding?() do
       spawn fn ->
+        set_seeding true
         data() |>
           Enum.map(fn airport -> put_airport(airport) end)
+        set_seeding false
       end
     end
+  end
+
+  def is_seeding? do
+    Redix.command(:redix, ["GET","system/seeding"]) == "true"
+  end
+  def set_seeding(in_progress) do
+    Redix.command(:redix, ["SET","system/seeding",in_progress])
   end
 
   defp redis_empty? do
