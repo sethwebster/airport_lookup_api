@@ -11,7 +11,7 @@ use Mix.Config
 # before starting your production server.
 config :airport_lookup_api, AirportLookupApiWeb.Endpoint,
   load_from_system_env: true,
-  http: [port: {:system, "PORT"}],
+  http: [port: Map.fetch!(System.get_env(),"PORT")],
   url: [scheme: "https", host: "airport-icao-api", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 # cache_static_manifest: "priv/static/cache_manifest.json"
