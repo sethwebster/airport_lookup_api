@@ -43,8 +43,10 @@ defmodule AirportLookupApi.AirportData do
 
   def seed_redis do
     if redis_empty?() do
-      data() |>
-        Enum.map(fn airport -> put_airport(airport) end)
+      spawn fn ->
+        data() |>
+          Enum.map(fn airport -> put_airport(airport) end)
+      end
     end
   end
 
@@ -59,6 +61,7 @@ defmodule AirportLookupApi.AirportData do
 
   def put_airport(airport) do
     {icao, data} = airport
+    IO.puts "Storing #{icao}..."
     Redix.command(:redix, ["SET", "airports/#{icao}", Poison.encode!(data)])
   end
 

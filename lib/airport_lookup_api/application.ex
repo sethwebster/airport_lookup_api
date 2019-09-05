@@ -14,7 +14,7 @@ defmodule AirportLookupApi.Application do
       AirportLookupApiWeb.Endpoint,
       # Starts a worker by calling: AirportLookupApi.Worker.start_link(arg)
       # {AirportLookupApi.Worker, arg},
-      {Redix, {System.get_env("REDIS_URL"), [name: :redix]}}
+      {Redix, {System.get_env("REDIS_URL") || "redis://localhost:6379/", [name: :redix]}}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
