@@ -81,7 +81,7 @@ defmodule AirportLookupApiWeb.AirportController do
 
   def index(conn, params) do
     AirportLookupApi.AirportData.seed_redis
-    data = AirportLookupApi.AirportData.search(params["icao"])
+    data = AirportLookupApi.AirportData.search(String.upcase(params["icao"]))
     json(conn, %{data: data})
   end
 end
