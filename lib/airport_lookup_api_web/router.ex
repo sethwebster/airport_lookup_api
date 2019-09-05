@@ -5,9 +5,8 @@ defmodule AirportLookupApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", AirportLookupApiWeb do
+  scope "/api/v1", AirportLookupApiWeb do
     pipe_through :api
-
     get "/airport/", AirportController, :index
   end
 end
