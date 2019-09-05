@@ -10,10 +10,11 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :airport_lookup_api, AirportLookupApiWeb.Endpoint,
+  load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "airport-icao-api", port: 443],
+  url: [scheme: "https", host: System.get_env("HOSTNAME"), port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
-  # cache_static_manifest: "priv/static/cache_manifest.json"
+# cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
