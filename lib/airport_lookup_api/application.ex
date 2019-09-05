@@ -11,9 +11,10 @@ defmodule AirportLookupApi.Application do
       # Start the Ecto repository
       # AirportLookupApi.Repo,
       # Start the endpoint when the application starts
-      AirportLookupApiWeb.Endpoint
+      AirportLookupApiWeb.Endpoint,
       # Starts a worker by calling: AirportLookupApi.Worker.start_link(arg)
       # {AirportLookupApi.Worker, arg},
+      {Redix, name: :redix}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
