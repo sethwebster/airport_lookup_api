@@ -1,39 +1,46 @@
 defmodule AirportLookupApi.AirportData do
 
-  def search(query) do
-    []
+  def search(facets, query) when is_list(facets) do
+    keys = facets 
+    |>Enum.map(fn facet -> keys(facet, query) end)
+    |>List.flatten
+    |>Enum.uniq
+    IO.puts inspect keys
+    airports(keys)
+    |>List.flatten
+    |>Enum.uniq 
   end
 
-  def search_icao(airport) do
-    keys = keys(airport)
+  def search_icao(icao) do
+    keys = keys("icao", icao)
     airports(keys)
   end
 
-  defp keys(icao) do
-    { :ok, results } = Redix.pipeline(:redix, search_key_commands(icao))
+  defp keys(facet, query) do
+    { :ok, results } = Redix.pipeline(:redix, search_key_commands(facet, query))
     results
     |> List.flatten
     |> Enum.uniq
   end
 
-  defp search_key_commands(icao) do
-    Enum.map(search_keys(icao), fn key -> ["KEYS", key] end)
+  defp search_key_commands(facet, query) do
+    Enum.map(search_keys(facet, query), fn key -> ["KEYS", key] end)
   end
 
-  defp search_keys(icao) do
-    if (!is_full_icao?(icao)) do
-      [search_key(icao), search_key("K#{icao}")]
+  defp search_keys(facet, query) do
+    if (facet == "icao" && !is_full_icao?(query)) do
+      [search_key(facet, query), search_key(facet, "K#{query}")]
     else
-      [search_key(icao)]
+      [search_key(facet, query)]
     end
   end
 
-  defp search_key(icao) do
-    "#{key(icao)}*"
+  defp search_key(facet, query) do
+    "#{key(facet, query)}*"
   end
 
-  defp key(icao) do
-    "airports/icao/#{icao}"
+  defp key(facet, query) do
+    "airports/#{facet}/#{query}"
   end
 
   defp airport_get_command(key) do

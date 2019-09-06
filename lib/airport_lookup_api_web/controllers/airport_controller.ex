@@ -2,9 +2,10 @@ defmodule AirportLookupApiWeb.AirportController do
   use AirportLookupApiWeb, :controller
   
   def index(conn, %{"search"=>search}) do
+    IO.puts('hit')
     AirportLookupApi.AirportData.Importer.seed_redis_if_necessary
     if (String.length(search) >= 2) do
-      data = AirportLookupApi.AirportData.search(String.upcase(search))
+      data = AirportLookupApi.AirportData.search(["city","name"], String.upcase(search))
       json(conn, %{data: data})
     else
       json(conn, %{error: "Input for `search` requires at least two characters", data: []})

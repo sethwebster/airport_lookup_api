@@ -24,17 +24,17 @@ defmodule AirportLookupApi.AirportData.Importer do
     airports = data()
     
     icao_commands = airports
-    |>Enum.take(10)
+    |>Enum.take(10000)
     |>Enum.map(fn airport -> put_airport_commands(airport) end)
     |>flatten_commands
     
     city_commands = airports
-    |>Enum.take(10)
+    |>Enum.take(10000)
     |>airports_by_facet("municipality")
     |>Enum.map(fn {key, value} -> set_facet_command("city", key, value) end)
 
     name_commands = airports
-    |>Enum.take(10)
+    |>Enum.take(10000)
     |>airports_by_facet("name")
     |>Enum.map(fn {key, value} -> set_facet_command("name", key, value) end)
 
@@ -69,7 +69,7 @@ defmodule AirportLookupApi.AirportData.Importer do
   end
 
   defp set_facet_command(facet, key, value) do
-    ["SET", "#{@airports_prefix}#{facet}/#{key}", Poison.encode!(value)]
+    ["SET", "#{@airports_prefix}#{facet}/#{String.upcase(key)}", Poison.encode!(value)]
   end
 
   defp put_airport_commands(airport) do
