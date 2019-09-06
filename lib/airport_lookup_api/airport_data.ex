@@ -24,17 +24,15 @@ defmodule AirportLookupApi.AirportData do
     "airports/#{icao}"
   end
 
-  defp airport(key) do
-    {:ok, data} = Redix.command(:redix, ["GET", key])
-    if data do
-      Poison.decode!(data)
-    else
-      nil
-    end
+  defp airport_get_command(key) do
+    ["GET", key]
   end
 
   defp airports(keys) do
-    Enum.map(keys, fn k -> airport(k) end)
+    commands = Enum.map(keys, fn k -> airport_get_command(k) end)
+    {:ok, results} = Redix.pipeline(:redix, commands)
+    results
+    |> Enum.map(fn data -> Poison.decode!(data) end)
   end
 
 
