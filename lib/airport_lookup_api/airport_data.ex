@@ -28,6 +28,10 @@ defmodule AirportLookupApi.AirportData do
     ["GET", key]
   end
 
+  defp airports([]) do
+    []
+  end
+
   defp airports(keys) do
     commands = Enum.map(keys, fn k -> airport_get_command(k) end)
     {:ok, results} = Redix.pipeline(:redix, commands)
