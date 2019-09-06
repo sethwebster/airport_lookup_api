@@ -1,5 +1,10 @@
 defmodule AirportLookupApi.AirportData do
-  def search(airport) do
+
+  def search(query) do
+    []
+  end
+
+  def search_icao(airport) do
     keys = keys(airport)
     airports(keys)
   end
@@ -28,7 +33,7 @@ defmodule AirportLookupApi.AirportData do
   end
 
   defp key(icao) do
-    "airports/#{icao}"
+    "airports/icao/#{icao}"
   end
 
   defp airport_get_command(key) do
