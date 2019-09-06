@@ -43,7 +43,8 @@ defmodule AirportLookupApi.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 3.1"},
       {:redix, ">= 0.0.0"},
-      {:castore, ">= 0.0.0"}
+      {:castore, ">= 0.0.0"},
+      {:cors_plug, "~> 2.0"},
     ]
   end
 

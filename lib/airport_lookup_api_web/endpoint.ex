@@ -40,5 +40,7 @@ defmodule AirportLookupApiWeb.Endpoint do
     key: "_airport_lookup_api_key",
     signing_salt: "LJw65kkd"
 
+  plug CORSPlug
+
   plug AirportLookupApiWeb.Router
 end
