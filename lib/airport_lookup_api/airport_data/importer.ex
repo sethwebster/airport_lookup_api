@@ -13,9 +13,11 @@ defmodule AirportLookupApi.AirportData.Importer do
   def seed_redis_if_necessary do
     if redis_empty?() and !is_seeding?() do
       spawn fn ->
+        IO.puts "Seeding Data..."
         set_seeding true
         send_data_to_redis()
         set_seeding false
+        IO.puts "Data seeding complete..."
       end
     end
   end
@@ -24,17 +26,17 @@ defmodule AirportLookupApi.AirportData.Importer do
     airports = data()
     
     icao_commands = airports
-    |>Enum.take(10000)
+    #|>Enum.take(10000)
     |>Enum.map(fn airport -> put_airport_commands(airport) end)
     |>flatten_commands
     
     city_commands = airports
-    |>Enum.take(10000)
+    #|>Enum.take(10000)
     |>airports_by_facet("municipality")
     |>Enum.map(fn {key, value} -> set_facet_command("city", key, value) end)
 
     name_commands = airports
-    |>Enum.take(10000)
+    #|>Enum.take(10000)
     |>airports_by_facet("name")
     |>Enum.map(fn {key, value} -> set_facet_command("name", key, value) end)
 

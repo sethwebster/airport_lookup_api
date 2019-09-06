@@ -5,7 +5,7 @@ defmodule AirportLookupApi.AirportData do
     |>Enum.map(fn facet -> keys(facet, query) end)
     |>List.flatten
     |>Enum.uniq
-    IO.puts inspect keys
+   
     airports(keys)
     |>List.flatten
     |>Enum.uniq 
