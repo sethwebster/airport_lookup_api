@@ -5,14 +5,21 @@ defmodule AirportLookupApi.AirportData do
   end
 
   defp keys(icao) do
-    query1 = search_key(icao)
-    {:ok, keys1} = Redix.command(:redix, ["KEYS",query1])
-    if is_full_icao?(icao) do
-      keys1
+    { :ok, results } = Redix.pipeline(:redix, search_key_commands(icao))
+    results
+    |> List.flatten
+    |> Enum.uniq
+  end
+
+  defp search_key_commands(icao) do
+    Enum.map(search_keys(icao), fn key -> ["KEYS", key] end)
+  end
+
+  defp search_keys(icao) do
+    if (!is_full_icao?(icao)) do
+      [search_key(icao), search_key("K#{icao}")]
     else
-      query2 = search_key("K#{icao}")
-      {:ok, keys2} = Redix.command(:redix, ["KEYS",query2])
-      Enum.filter(keys1 ++ keys2, & !is_nil(&1))
+      [search_key(icao)]
     end
   end
 
