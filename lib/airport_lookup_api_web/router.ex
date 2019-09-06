@@ -8,5 +8,6 @@ defmodule AirportLookupApiWeb.Router do
   scope "/api/v1", AirportLookupApiWeb do
     pipe_through :api
     get "/airport/", AirportController, :index
+    get "/health/", HealthController, :index
   end
 end
