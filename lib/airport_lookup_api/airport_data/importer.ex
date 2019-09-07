@@ -24,12 +24,12 @@ defmodule AirportLookupApi.AirportData.Importer do
 
   defp send_data_to_redis do
     airports = data()
-    
+
     icao_commands = airports
     #|>Enum.take(10000)
     |>Enum.map(fn airport -> put_airport_commands(airport) end)
     |>flatten_commands
-    
+
     city_commands = airports
     #|>Enum.take(10000)
     |>airports_by_facet("municipality")
@@ -43,12 +43,25 @@ defmodule AirportLookupApi.AirportData.Importer do
     commands = icao_commands ++ city_commands ++ name_commands
 
     IO.puts "Sending #{length(commands)} to Redix..."
-    {:ok, response} = Redix.pipeline(:redix, commands)
+    {:ok} = stream_commands_to_redis(commands, 0, 5000)
     IO.puts "Complete."
   end
-  
+
+  defp stream_commands_to_redis(commands, start, size) when start >= length(commands) do
+    IO.puts("Done.")
+    {:ok}
+  end
+
+  defp stream_commands_to_redis(commands, start, size) do
+    IO.puts("Sending #{size} records from #{start}...")
+    {:ok, response} = Redix.pipeline(:redix, Enum.slice(commands, start, size))
+    stream_commands_to_redis(commands, start + size, size)
+  end
+
+
+
   defp airports_by_facet(data, facet) do
-    Enum.reduce(data, %{}, fn curr, acc -> 
+    Enum.reduce(data, %{}, fn curr, acc ->
       { icao, obj } = curr
       facet = obj[facet]
       existing = Map.get(acc, facet) || []
@@ -58,7 +71,7 @@ defmodule AirportLookupApi.AirportData.Importer do
 
   defp flatten_commands(commands) do
     Enum.reduce(commands, [], fn curr, acc ->
-      acc ++ curr 
+      acc ++ curr
     end)
   end
 
