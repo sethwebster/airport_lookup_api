@@ -12,7 +12,7 @@ use Mix.Config
 config :airport_lookup_api, AirportLookupApiWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "airport-icao-api.herokuapp.com", port: 443],
+  url: [scheme: "https", host: "airport-icao-api.sharetheair.club", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 # cache_static_manifest: "priv/static/cache_manifest.json"
 
