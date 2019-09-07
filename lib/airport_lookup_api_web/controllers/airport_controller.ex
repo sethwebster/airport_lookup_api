@@ -1,21 +1,20 @@
 defmodule AirportLookupApiWeb.AirportController do
   use AirportLookupApiWeb, :controller
-  
+
   defp filter(data, filters) do
-    filters = sanitize_filters(filters) 
+    filtered = sanitize_filters(filters)
     |> parse_filters
     |> apply_filters(data)
-    IO.puts "Done"
-    IO.puts inspect filters
-    data
+    filtered
   end
 
   defp apply_filters(filters, data) do
-    Enum.filter(data, fn item -> 
-      Enum.find(filters, fn filter -> 
-        [key, value, func] = filter
+    Enum.filter(data, fn item ->
+      filter_results = Enum.map(filters, fn filter ->
+        %{:key => key, :value => value, :func => func} = filter
         func.(key, value, item)
       end)
+      Enum.all?(filter_results, fn res -> res end)
     end)
   end
 
@@ -24,17 +23,22 @@ defmodule AirportLookupApiWeb.AirportController do
     |> Enum.filter(fn v -> String.length(v) > 0 end)
     |> Enum.uniq
   end
-  
+
   defp parse_filters(filters) do
     operators = [
       "!=": fn k, v, data ->
         data[k] != v
       end,
-      "=": fn k, v, data -> 
+      "=": fn k, v, data ->
         data[k] == v
+      end,
+      "->": fn k, v, data ->
+        String.split(v,["|"])
+        |> Enum.find(fn opt -> opt == data[k] end)
       end
+
     ]
-    Enum.map(filters, fn item -> 
+    Enum.map(filters, fn item ->
       operator = Enum.find(operators, fn {k, _} -> String.contains?(item, "#{k}") end)
       {op, func} = operator
       [key, value] = String.split(item, "#{op}")
@@ -46,7 +50,7 @@ defmodule AirportLookupApiWeb.AirportController do
     end)
   end
 
-  def index(conn, %{"name"=>name, "filters"=>filters}) do
+  def index(conn, %{"name"=>name, "filters"=> filters }) do
     AirportLookupApi.AirportData.Importer.seed_redis_if_necessary
     if (String.length(name) >= 2) do
       data = AirportLookupApi.AirportData.search(["name"], String.upcase(name))
@@ -56,14 +60,22 @@ defmodule AirportLookupApiWeb.AirportController do
     end
   end
 
+  def index(conn, %{ "name" => name } = params) do
+    index(conn, %{"name" => name, "filters" => "[]"})
+  end
+
   def index(conn, %{"city"=>city, "filters"=>filters}) do
     AirportLookupApi.AirportData.Importer.seed_redis_if_necessary
     if (String.length(city) >= 2) do
       data = AirportLookupApi.AirportData.search(["city"], String.upcase(city))
       json(conn, %{data: filter(data, filters)})
     else
-      json(conn, %{error: "Input for `name` requires at least two characters", data: []})
+      json(conn, %{error: "Input for `city` requires at least two characters", data: []})
     end
+  end
+
+  def index(conn, %{ "city" => city } = params) do
+    index(conn, %{"city" => city, "filters" => "[]"})
   end
 
   def index(conn, %{"search"=>search}) do
@@ -76,10 +88,10 @@ defmodule AirportLookupApiWeb.AirportController do
     end
   end
 
-  def index(conn, params) do
+  def index(conn, %{"icao" => icao}) do
     AirportLookupApi.AirportData.Importer.seed_redis_if_necessary
-    if String.length(params["icao"]) >= 2 do
-      data = AirportLookupApi.AirportData.search_icao(String.upcase(params["icao"]))
+    if String.length(icao) >= 2 do
+      data = AirportLookupApi.AirportData.search_icao(String.upcase(icao))
       json(conn, %{data: data})
     else
       json(conn, %{error: "Input for `icao` requires at least two characters", data: []})
