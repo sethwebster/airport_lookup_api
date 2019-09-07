@@ -47,19 +47,6 @@ defmodule AirportLookupApi.AirportData.Importer do
     IO.puts "Complete."
   end
 
-  defp stream_commands_to_redis(commands, start, size) when start >= length(commands) do
-    IO.puts("Done.")
-    {:ok}
-  end
-
-  defp stream_commands_to_redis(commands, start, size) do
-    IO.puts("Sending #{size} records from #{start}...")
-    {:ok, response} = Redix.pipeline(:redix, Enum.slice(commands, start, size))
-    stream_commands_to_redis(commands, start + size, size)
-  end
-
-
-
   defp airports_by_facet(data, facet) do
     Enum.reduce(data, %{}, fn curr, acc ->
       { icao, obj } = curr
@@ -94,6 +81,17 @@ defmodule AirportLookupApi.AirportData.Importer do
     [
       ["SET", "#{@airports_prefix}#{@icao_index}#{icao}", obj]
     ]
+  end
+
+  defp stream_commands_to_redis(commands, start, size) when start >= length(commands) do
+    IO.puts("Done.")
+    {:ok}
+  end
+
+  defp stream_commands_to_redis(commands, start, size) do
+    IO.puts("Sending #{size} records from #{start}...")
+    {:ok, response} = Redix.pipeline(:redix, Enum.slice(commands, start, size))
+    stream_commands_to_redis(commands, start + size, size)
   end
 
   defp redis_empty? do
