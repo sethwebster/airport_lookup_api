@@ -68,8 +68,7 @@ defmodule AirportLookupApiWeb.AirportController do
     AirportLookupApi.AirportData.Importer.seed_redis_if_necessary
     if (String.length(city) >= 2) do
       data = AirportLookupApi.AirportData.search(["city"], String.upcase(city))
-      json(conn, %{data: filter(data, filters)})
-    else
+      json(conn, %{data: filter(data, filters)})    else
       json(conn, %{error: "Input for `city` requires at least two characters", data: []})
     end
   end
@@ -78,14 +77,18 @@ defmodule AirportLookupApiWeb.AirportController do
     index(conn, %{"city" => city, "filters" => "[]"})
   end
 
-  def index(conn, %{"search"=>search}) do
+  def index(conn, %{"search"=> search, "filters"=>filters}) do
     AirportLookupApi.AirportData.Importer.seed_redis_if_necessary
     if (String.length(search) >= 2) do
-      data = AirportLookupApi.AirportData.search(["city","name"], String.upcase(search))
-      json(conn, %{data: data})
+      data = AirportLookupApi.AirportData.search(["city","name","icao"], String.upcase(search))
+      json(conn, %{data: filter(data, filters)})
     else
       json(conn, %{error: "Input for `search` requires at least two characters", data: []})
     end
+  end
+
+  def index(conn, %{ "search" => search } = params) do
+    index(conn, %{"search" => search, "filters" => "[]"})
   end
 
   def index(conn, %{"icao" => icao}) do
