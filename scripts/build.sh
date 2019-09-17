@@ -1,2 +1,2 @@
 BN=$(git rev-list --count HEAD)
-docker build . -t sharetheair/airport-icao-lookup:$BN
+docker build . -t registry.gitlab.com/sethwebster/airport_lookup_api:$BN
