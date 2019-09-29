@@ -11,4 +11,4 @@ spec:
   selector:
     app: airport-icao-lookup
   sessionAffinity: None
-  type: LoadBalancer
+  type: NodePort
