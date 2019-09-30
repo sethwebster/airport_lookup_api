@@ -18,6 +18,7 @@ build:
     - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE}
     - docker tag ${CONTAINER_IMAGE} registry.gitlab.com/sethwebster/airport_lookup_api:latest
     - docker push ${CONTAINER_IMAGE}
+    - docker push registry.gitlab.com/sethwebster/airport_lookup_api:latest
 
 deploy:
   stage: deploy
